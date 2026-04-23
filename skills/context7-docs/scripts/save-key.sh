@@ -49,7 +49,7 @@ context7_resolve_python >/dev/null || {
 probe_file="$(mktemp)"
 trap 'rm -f "$probe_file"' EXIT
 
-if ! http_code="$(curl -sS -o "$probe_file" -w "%{http_code}" -X GET "https://context7.com/api/libraries?q=react&limit=1" -H "Authorization: Bearer ${api_key}")"; then
+if ! http_code="$(curl -sS -o "$probe_file" -w "%{http_code}" -X GET "https://context7.com/api/v2/libs/search?libraryName=react&query=hooks" -H "Authorization: Bearer ${api_key}")"; then
   printf '%s\n' 'Context7 probe failed due to a network or curl error.' >&2
   exit 1
 fi

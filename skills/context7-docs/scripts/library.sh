@@ -45,7 +45,8 @@ fi
 response_file="$(mktemp)"
 trap 'rm -f "$response_file"' EXIT
 
-if ! http_code="$(curl -sS -o "$response_file" -w "%{http_code}" -X GET "https://context7.com/api/libraries?q=$(python -c "import urllib.parse; print(urllib.parse.quote('$query'))")&limit=10" -H "Authorization: Bearer ${CONTEXT7_API_KEY}")"; then
+encoded_query="$(python -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$query")"
+if ! http_code="$(curl -sS -o "$response_file" -w "%{http_code}" -X GET "https://context7.com/api/v2/libs/search?libraryName=${encoded_query}&query=${encoded_query}" -H "Authorization: Bearer ${CONTEXT7_API_KEY}")"; then
   printf '%s\n' 'Context7 request failed due to a network or curl error.' >&2
   exit 1
 fi
@@ -95,25 +96,25 @@ import sys
 with open(sys.argv[1], 'r', encoding='utf-8') as handle:
     data = json.load(handle)
 
-libraries = data.get('libraries') or data if isinstance(data, list) else []
+results = data.get('results') or []
 
-if not libraries:
+if not results:
     print('No libraries found.')
     sys.exit(0)
 
-print(f'Found {len(libraries)} library(ies):')
+print(f'Found {len(results)} library(ies):')
 print()
 
-for lib in libraries:
-    lib_id = lib.get('id') or lib.get('libraryId') or lib.get('name', 'unknown')
-    name = lib.get('name') or lib_id
+for lib in results:
+    lib_id = lib.get('id') or lib.get('libraryId') or 'unknown'
+    name = lib.get('title') or lib_id
     description = lib.get('description', '')
-    version = lib.get('version', '')
+    versions = lib.get('versions', [])
     
     print(f'ID:   {lib_id}')
     print(f'Name: {name}')
-    if version:
-        print(f'Version: {version}')
+    if versions:
+        print(f'Versions: {", ".join(versions[:5])}')
     if description:
         print(f'Desc: {description[:200]}')
     print()

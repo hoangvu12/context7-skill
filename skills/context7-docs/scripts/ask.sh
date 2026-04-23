@@ -47,25 +47,13 @@ if [[ -n "${exit_code:-}" ]]; then
   exit "$exit_code"
 fi
 
-request_body="$(context7_python - "$library_id" "$query" <<'PY'
-import json
-import sys
-
-library_id, query = sys.argv[1:3]
-
-payload = {
-    'libraryId': library_id,
-    'query': query,
-}
-
-sys.stdout.write(json.dumps(payload))
-PY
-)"
+encoded_lib="$(python -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$library_id")"
+encoded_query="$(python -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$query")"
 
 response_file="$(mktemp)"
 trap 'rm -f "$response_file"' EXIT
 
-if ! http_code="$(curl -sS -o "$response_file" -w "%{http_code}" -X POST "https://context7.com/api/docs" -H "Authorization: Bearer ${CONTEXT7_API_KEY}" -H "Content-Type: application/json" -d "$request_body")"; then
+if ! http_code="$(curl -sS -o "$response_file" -w "%{http_code}" -X GET "https://context7.com/api/v2/context?libraryId=${encoded_lib}&query=${encoded_query}&type=json" -H "Authorization: Bearer ${CONTEXT7_API_KEY}")"; then
   printf '%s\n' 'Context7 request failed due to a network or curl error.' >&2
   exit 1
 fi
@@ -115,45 +103,43 @@ import sys
 with open(sys.argv[1], 'r', encoding='utf-8') as handle:
     data = json.load(handle)
 
-# Print the main answer / content
-content = ''
-if isinstance(data, dict):
-    content = data.get('content') or data.get('answer') or data.get('response') or ''
-    # Some APIs return a list of chunks/snippets
-    if not content and 'results' in data:
-        results = data['results']
-        if isinstance(results, list):
-            for item in results:
-                text = item.get('content') or item.get('text') or item.get('snippet') or ''
-                if text:
-                    content += text + '\n\n'
-else:
-    content = str(data)
+# Print code snippets
+code_snippets = data.get('codeSnippets') or []
+for snippet in code_snippets:
+    title = snippet.get('codeTitle', '')
+    description = snippet.get('codeDescription', '')
+    language = snippet.get('codeLanguage', '')
+    
+    if title:
+        print(f'## {title}')
+    if description:
+        print(description)
+    
+    code_list = snippet.get('codeList') or []
+    for code_example in code_list:
+        lang = code_example.get('language', language)
+        code = code_example.get('code', '')
+        if code:
+            print(f'```{lang}')
+            print(code)
+            print('```')
+    print()
 
-if content:
-    print(content.strip())
-else:
+# Print info snippets
+info_snippets = data.get('infoSnippets') or []
+for info in info_snippets:
+    breadcrumb = info.get('breadcrumb', '')
+    content = info.get('content', '')
+    
+    if breadcrumb:
+        print(f'## {breadcrumb}')
+    if content:
+        print(content)
+    print()
+
+if not code_snippets and not info_snippets:
     print('No documentation content returned.')
     print()
     print('Raw response:')
     print(json.dumps(data, indent=2))
-
-# Print sources if available
-sources = []
-if isinstance(data, dict):
-    sources = data.get('sources') or data.get('citations') or []
-    if not sources and 'results' in data:
-        for item in data['results']:
-            url = item.get('url') or item.get('source') or ''
-            if url:
-                sources.append(url)
-
-if sources:
-    print()
-    print('Sources:')
-    seen = set()
-    for src in sources:
-        if src not in seen:
-            seen.add(src)
-            print(f'- {src}')
 PY
