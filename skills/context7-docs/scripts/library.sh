@@ -45,7 +45,7 @@ fi
 response_file="$(mktemp)"
 trap 'rm -f "$response_file"' EXIT
 
-encoded_query="$(python -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$query")"
+encoded_query="$(context7_python -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$query")"
 if ! http_code="$(curl -sS -o "$response_file" -w "%{http_code}" -X GET "https://context7.com/api/v2/libs/search?libraryName=${encoded_query}&query=${encoded_query}" -H "Authorization: Bearer ${CONTEXT7_API_KEY}")"; then
   printf '%s\n' 'Context7 request failed due to a network or curl error.' >&2
   exit 1

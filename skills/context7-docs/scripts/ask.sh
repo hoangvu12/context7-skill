@@ -47,8 +47,8 @@ if [[ -n "${exit_code:-}" ]]; then
   exit "$exit_code"
 fi
 
-encoded_lib="$(python -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$library_id")"
-encoded_query="$(python -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$query")"
+encoded_lib="$(context7_python -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$library_id")"
+encoded_query="$(context7_python -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$query")"
 
 response_file="$(mktemp)"
 trap 'rm -f "$response_file"' EXIT
