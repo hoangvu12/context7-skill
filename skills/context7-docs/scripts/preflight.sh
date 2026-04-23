@@ -113,7 +113,7 @@ context7_load_legacy_key() {
 }
 
 context7_validate_key_format() {
-  [[ -n "${CONTEXT7_API_KEY:-}" && "${CONTEXT7_API_KEY}" =~ ^c7_[A-Za-z0-9._-]+$ ]]
+  [[ -n "${CONTEXT7_API_KEY:-}" && "${CONTEXT7_API_KEY}" =~ ^ctx7sk-[a-f0-9-]+$ ]]
 }
 
 context7_preflight() {

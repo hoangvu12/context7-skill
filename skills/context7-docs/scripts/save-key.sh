@@ -34,8 +34,8 @@ if [[ -z "$api_key" ]]; then
   exit 1
 fi
 
-if [[ ! "$api_key" =~ ^c7_[A-Za-z0-9._-]+$ ]]; then
-  printf '%s\n' 'Invalid key format. Expected a value starting with c7_.' >&2
+if [[ ! "$api_key" =~ ^ctx7sk-[a-f0-9-]+$ ]]; then
+  printf '%s\n' 'Invalid key format. Expected a value starting with ctx7sk-.' >&2
   exit 1
 fi
 
