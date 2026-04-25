@@ -25,9 +25,7 @@ cp -r context7-skill/skills/context7-docs ~/.claude/skills/
 
 ## Prerequisites
 
-- `bash`
-- `curl`
-- `python` (3.9+)
+- `bun`
 - A Context7 API key from `https://context7.com/dashboard` (free tier available)
 
 ## First Run
@@ -39,31 +37,31 @@ The skill checks for a key in this order:
 3. `~/.config/context7/config.json`
 4. `~/.context7` legacy file
 
-If none is found, the scripts print a `CONTEXT7_AUTH_REQUIRED` marker. The agent will ask you for a key, run `scripts/save-key.sh <key>`, then retry.
+If none is found, the scripts print a `CONTEXT7_AUTH_REQUIRED` marker. The agent will ask you for a key, run `scripts/save-key.ts <key>`, then retry.
 
 Manual setup:
 
 ```bash
-bash skills/context7-docs/scripts/save-key.sh <your-c7-key>
+bun skills/context7-docs/scripts/save-key.ts <your-c7-key>
 ```
 
 ## Included Scripts
 
-- `scripts/library.sh` — search for a library by name and get its Context7 ID
-- `scripts/ask.sh` — query documentation for a specific library ID
-- `scripts/save-key.sh` — validate and persist API key
-- `scripts/preflight.sh` — shared auth and dependency checks
+- `scripts/library.ts` — search for a library by name and get its Context7 ID
+- `scripts/ask.ts` — query documentation for a specific library ID
+- `scripts/save-key.ts` — validate and persist API key
+- `scripts/preflight.ts` — shared auth checks and Context7 request helpers
 
 ## Example
 
 Find a library:
 
 ```bash
-bash skills/context7-docs/scripts/library.sh "next.js"
+bun skills/context7-docs/scripts/library.ts "next.js"
 ```
 
 Query docs:
 
 ```bash
-bash skills/context7-docs/scripts/ask.sh "/vercel/next.js" "How do I create middleware?"
+bun skills/context7-docs/scripts/ask.ts "/vercel/next.js" "How do I create middleware?"
 ```

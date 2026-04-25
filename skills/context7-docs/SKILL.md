@@ -17,9 +17,7 @@ Context7 provides real-time documentation so the agent does not rely on stale tr
 
 ## Prerequisites
 
-- `bash`
-- `curl`
-- `python` (3.9+)
+- `bun`
 - A Context7 API key (free tier available at https://context7.com/dashboard)
 
 ## Authentication Flow
@@ -31,20 +29,20 @@ The scripts resolve credentials in this order:
 3. `~/.config/context7/config.json`
 4. `~/.context7` legacy plaintext file
 
-If no key is found, the scripts print a `CONTEXT7_AUTH_REQUIRED` marker. The agent should ask the user for their key, run `bash scripts/save-key.sh <key>`, then retry the original command.
+If no key is found, the scripts print a `CONTEXT7_AUTH_REQUIRED` marker. The agent should ask the user for their key, run `bun scripts/save-key.ts <key>`, then retry the original command.
 
 ## Commands
 
 ### Find a library
 
 ```bash
-bash scripts/library.sh "<library-name>"
+bun scripts/library.ts "<library-name>"
 ```
 
 Example:
 
 ```bash
-bash scripts/library.sh "next.js"
+bun scripts/library.ts "next.js"
 ```
 
 Returns a list of matching libraries with their Context7 IDs (e.g. `/vercel/next.js`).
@@ -52,13 +50,13 @@ Returns a list of matching libraries with their Context7 IDs (e.g. `/vercel/next
 ### Query documentation
 
 ```bash
-bash scripts/ask.sh "<library-id>" "<question>"
+bun scripts/ask.ts "<library-id>" "<question>"
 ```
 
 Example:
 
 ```bash
-bash scripts/ask.sh "/vercel/next.js" "How do I create a middleware that checks JWT cookies?"
+bun scripts/ask.ts "/vercel/next.js" "How do I create a middleware that checks JWT cookies?"
 ```
 
 ## Output Rules
